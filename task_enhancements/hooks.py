@@ -4,6 +4,12 @@ app_publisher = "Sapphire Fountains"
 app_description = "A better and more custom view of tasks inside Projects."
 app_email = "info@sapphirefountains.com"
 app_license = "mit"
+override_doctype_class = {
+    "Task": "task_enhancements.task.task.Task"
+}
+#app_include_css = "/assets/task_enhancements/css/task_enhancements.css"
+#doctype_tree_js = {"Task": "public/js/task_tree.js"}
+
 
 # Apps
 # ------------------
