@@ -5,6 +5,14 @@ def get_project_tasks_hierarchy(project):
     """
     Fetches all tasks for a given project and returns them in a hierarchical
     JSON structure suitable for tree rendering.
+
+    Args:
+        project (str): The name of the project for which to fetch tasks.
+
+    Returns:
+        list[dict]: A list of root-level task dictionaries, where each task
+                    may contain a 'children' key with a list of its sub-tasks.
+                    Returns an empty list if the project is not found or has no tasks.
     """
     if not project:
         return []
