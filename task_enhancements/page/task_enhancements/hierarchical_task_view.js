@@ -1,3 +1,7 @@
+/**
+ * Initializes the Hierarchical Task View page.
+ * @param {HTMLElement} wrapper - The parent element for the page.
+ */
 frappe.pages['hierarchical-task-view'].on_page_load = function(wrapper) {
     const page = frappe.ui.make_app_page({
         parent: wrapper,
@@ -25,15 +29,18 @@ frappe.pages['hierarchical-task-view'].on_page_load = function(wrapper) {
     // Add a container for our task tree
     $(page.body).append('<div class="task-tree-container" style="margin-top: 20px;"></div>');
     $(page.body).find('.task-tree-container').html('<p class="text-muted">Please select a project to view its tasks.</p>');
-
 }
 
+/**
+ * Fetches tasks for a given project and renders them as a tree.
+ * @param {object} page - The Frappe page object.
+ * @param {string} project - The name of the project to fetch tasks for.
+ */
 function fetch_and_render_tasks(page, project) {
     const container = $(page.body).find('.task-tree-container');
     container.html('<p class="text-muted">Loading tasks...</p>');
 
     frappe.call({
-        // IMPORTANT: This path uses your app name "task_enhancements"
         method: 'task_enhancements.task_enhancements.doctype.hierarchical_task_view.hierarchical_task_view.get_project_tasks_hierarchy',
         args: {
             project: project
@@ -50,6 +57,11 @@ function fetch_and_render_tasks(page, project) {
     });
 }
 
+/**
+ * Renders a list of tasks into an HTML tree structure.
+ * @param {Array<object>} tasks - An array of task objects, potentially nested.
+ * @returns {string} The HTML string representing the task tree.
+ */
 function render_task_tree(tasks) {
     // Start the tree with a top-level <ul>
     let html = '<ul class="task-tree">';
@@ -62,6 +74,11 @@ function render_task_tree(tasks) {
     return html;
 }
 
+/**
+ * Recursively renders a single task and its children as an HTML list item.
+ * @param {object} task - The task object to render.
+ * @returns {string} The HTML string for the task node.
+ */
 function render_task_node(task) {
     // Each task is an <li>
     let node_html = `

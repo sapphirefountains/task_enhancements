@@ -1,3 +1,11 @@
+/*
+ * Styles for the Hierarchical Task View
+ *
+ * This file contains the CSS for rendering the nested list of tasks
+ * as a visually intuitive tree structure. It styles the list items,
+ * connectors, and the overall layout of the task tree.
+ */
+
 /* Basic tree styling */
 .task-tree, .task-tree ul {
     list-style: none;
