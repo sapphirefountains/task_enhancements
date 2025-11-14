@@ -37,3 +37,45 @@ class Task(NestedSet):
         right (`rgt`) values for the entire task tree.
         """
         super(Task, self).on_update()
+
+@frappe.whitelist()
+def get_child_tasks_html(task_name):
+    task = frappe.get_doc("Task", task_name)
+    descendants = task.get_descendants()
+    
+    if not descendants:
+        return ""
+
+    task_map = {d.name: d for d in descendants}
+    for d in descendants:
+        d.children = []
+
+    tree = []
+    for d in descendants:
+        if d.parent_task == task_name:
+            tree.append(d)
+        elif d.parent_task in task_map:
+            task_map[d.parent_task].children.append(d)
+
+    return _build_task_tree_html(tree)
+
+def _build_task_tree_html(tasks):
+    if not tasks:
+        return ""
+
+    html = "<ul>"
+    for task in tasks:
+        html += "<li>"
+        if task.children:
+            html += '<i class="fa fa-plus-square toggle-child-tasks"></i> '
+        else:
+            html += '<i class="fa fa-square-o"></i> '
+        
+        html += f'<a href="/app/task/{task.name}">{task.subject}</a>'
+        
+        if task.children:
+            html += _build_task_tree_html(task.children)
+            
+        html += "</li>"
+    html += "</ul>"
+    return html

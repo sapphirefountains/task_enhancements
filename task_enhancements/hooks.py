@@ -7,7 +7,10 @@ app_license = "mit"
 override_doctype_class = {
     "Task": "task_enhancements.task.task.Task"
 }
-#app_include_css = "/assets/task_enhancements/css/task_enhancements.css"
+app_include_css = "/assets/task_enhancements/css/task_enhancements.css"
+doctype_js = {
+    "Task": "public/js/task.js"
+}
 #doctype_tree_js = {"Task": "public/js/task_tree.js"}
 
 

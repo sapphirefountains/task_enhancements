@@ -53,3 +53,18 @@
     text-decoration: none;
     color: #333;
 }
+
+/* Child tasks table styling */
+#custom_child_tasks_table ul {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+#custom_child_tasks_table li {
+    margin: 5px 0;
+}
+
+#custom_child_tasks_table .toggle-child-tasks {
+    cursor: pointer;
+    margin-right: 5px;
+}
