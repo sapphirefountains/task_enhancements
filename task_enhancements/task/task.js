@@ -22,9 +22,12 @@ frappe.ui.form.on("Task", {
 });
 
 function add_toggle_functionality() {
-    $(".toggle-child-tasks").on("click", function(e) {
+    // This event handler is delegated and will work for nested elements
+    $("#custom_child_tasks_table").on("click", ".toggle-child-tasks", function(e) {
         e.preventDefault();
+        // Toggle the UL that is a direct child of the same LI as the icon
         $(this).closest("li").children("ul").toggle();
+        // Switch the icon class
         $(this).toggleClass("fa-plus-square fa-minus-square");
     });
 }
