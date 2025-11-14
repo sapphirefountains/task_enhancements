@@ -1,20 +1,31 @@
 frappe.ui.form.on("Task", {
     refresh: function(frm) {
+        // --- Start of Debugging ---
+        console.log("Task Enhancements: Refresh event triggered.");
+        console.log("Is Group:", frm.doc.is_group);
+        console.log("Is New:", frm.is_new());
+        // --- End of Debugging ---
+
         if (frm.doc.is_group && !frm.is_new()) {
+            console.log("Task Enhancements: Conditions met, calling backend method.");
             frappe.call({
                 method: "task_enhancements.task.task.get_child_tasks_html",
                 args: {
                     task_name: frm.doc.name
                 },
                 callback: function(r) {
+                    console.log("Task Enhancements: Received response from backend.", r);
                     if (r.message) {
                         frm.fields_dict.custom_child_tasks_table.html(r.message);
                         frm.refresh_field("custom_child_tasks_table");
                         add_toggle_functionality();
+                    } else {
+                        console.log("Task Enhancements: Backend returned no message.");
                     }
                 }
             });
         } else {
+            console.log("Task Enhancements: Conditions NOT met, clearing HTML field.");
             frm.fields_dict.custom_child_tasks_table.html("");
             frm.refresh_field("custom_child_tasks_table");
         }
@@ -22,12 +33,9 @@ frappe.ui.form.on("Task", {
 });
 
 function add_toggle_functionality() {
-    // This event handler is delegated and will work for nested elements
     $("#custom_child_tasks_table").on("click", ".toggle-child-tasks", function(e) {
         e.preventDefault();
-        // Toggle the UL that is a direct child of the same LI as the icon
         $(this).closest("li").children("ul").toggle();
-        // Switch the icon class
         $(this).toggleClass("fa-plus-square fa-minus-square");
     });
 }
