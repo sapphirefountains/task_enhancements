@@ -9,7 +9,7 @@ override_doctype_class = {
 }
 app_include_css = "/assets/task_enhancements/css/task_enhancements.css"
 doctype_js = {
-    "Task": "public/js/task.js"
+	"Task": "task_enhancements/doctype/task/task.js"
 }
 #doctype_tree_js = {"Task": "public/js/task_tree.js"}
 
