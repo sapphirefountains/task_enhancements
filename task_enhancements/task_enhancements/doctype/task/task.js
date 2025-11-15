@@ -33,7 +33,8 @@ frappe.ui.form.on("Task", {
 });
 
 function add_toggle_functionality() {
-    $("#custom_child_tasks_table").on("click", ".toggle-child-tasks", function(e) {
+    // We need to target the form, as the custom table ID might not be on the top-level element
+    $(".form-layout").on("click", ".toggle-child-tasks", function(e) {
         e.preventDefault();
         $(this).closest("li").children("ul").toggle();
         $(this).toggleClass("fa-plus-square fa-minus-square");
