@@ -38,18 +38,54 @@ def get_child_tasks_html(task_name):
         # This list will hold the top-level tasks in the hierarchy below the main task
         tree = []
         for d in descendants:
-            # If the parent is the main task, it's a direct child
             if d.parent_task == task_name:
                 tree.append(d)
-            # If the parent is in our map, it's a nested child
             elif d.parent_task in task_map:
                 task_map[d.parent_task].children.append(d)
         
         logger.debug(f"Constructed a tree with {len(tree)} top-level children.")
 
-        html_output = _build_task_tree_html(tree)
-        logger.debug(f"Generated HTML (first 200 chars): {html_output[:200]}")
+        tree_html = _build_task_tree_html(tree)
+        if not tree_html:
+            return ""
+
+        header_html = """
+        <style>
+            .task-tree-container { padding: 10px; }
+            .task-tree-header, .task-tree-row {
+                display: flex;
+                align-items: center;
+                padding: 8px;
+                border-bottom: 1px solid #d1d8dd;
+            }
+            .task-tree-header { font-weight: bold; background-color: #f7fafc; }
+            .task-tree-col {
+                flex-grow: 1; flex-basis: 0; padding: 0 8px;
+                white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            }
+            .task-tree-col-subject { flex-grow: 2.5; }
+            .task-tree-col-status { flex-grow: 0.8; }
+            .task-tree-col-user { flex-grow: 1.2; }
+            .task-tree-col-date { flex-grow: 1; }
+            .task-tree-col-time { flex-grow: 0.7; }
+            .task-tree-container ul { list-style-type: none; padding-left: 0; margin: 0; }
+            .task-tree-container li > ul { padding-left: 30px; }
+            .task-tree-row a { font-weight: 500; }
+            .task-tree-row i { margin-right: 5px; width: 14px; text-align: center; }
+        </style>
+        <div class="task-tree-container">
+            <div class="task-tree-header">
+                <div class="task-tree-col task-tree-col-subject">Subject</div>
+                <div class="task-tree-col task-tree-col-status">Status</div>
+                <div class="task-tree-col task-tree-col-user">Assigned To</div>
+                <div class="task-tree-col task-tree-col-date">Start Date</div>
+                <div class="task-tree-col task-tree-col-date">End Date</div>
+                <div class="task-tree-col task-tree-col-time">Time (hrs)</div>
+            </div>
+        """
         
+        html_output = header_html + tree_html + "</div>"
+        logger.debug(f"Generated HTML (first 200 chars): {html_output[:200]}")
         return html_output
 
     except Exception as e:
@@ -59,10 +95,19 @@ def get_child_tasks_html(task_name):
 
 def _get_all_descendants(doctype, parent):
     descendants = []
-    children = frappe.get_all(doctype, filters={'parent_task': parent}, fields=['name'])
+    fields = [
+        "name", "subject", "parent_task", "status", "allocated_to",
+        "exp_start_date", "exp_end_date", "expected_time"
+    ]
+    children = frappe.get_all(doctype, filters={'parent_task': parent}, fields=fields)
+
     for child in children:
-        descendants.append(frappe.get_doc(doctype, child.name))
-        descendants.extend(_get_all_descendants(doctype, child.name))
+        # Convert the dictionary to a Frappe dict to allow dot notation access,
+        # making it compatible with the existing tree-building logic.
+        child_obj = frappe._dict(child)
+        descendants.append(child_obj)
+        descendants.extend(_get_all_descendants(doctype, child_obj.name))
+
     return descendants
 
 
@@ -73,14 +118,34 @@ def _build_task_tree_html(tasks):
     html = "<ul>"
     for task in tasks:
         html += "<li>"
-        if task.children:
-            html += '<i class="fa fa-minus-square toggle-child-tasks" style="cursor: pointer;"></i> '
-        else:
-            html += '<i class="fa fa-square-o"></i> '
-        
-        html += f'<a href="/app/task/{task.name}">{task.subject}</a>'
-        
-        if task.children:
+
+        # Use helper to avoid None display
+        status = task.status or ""
+        assigned_to = task.allocated_to or ""
+        start_date = task.exp_start_date or ""
+        end_date = task.exp_end_date or ""
+        expected_time = task.expected_time or ""
+
+        # Check for children more robustly
+        has_children = hasattr(task, 'children') and task.children
+
+        toggle_icon = '<i class="fa fa-minus-square toggle-child-tasks" style="cursor: pointer;"></i> ' if has_children else '<i class="fa fa-square-o"></i> '
+
+        html += f"""
+        <div class="task-tree-row">
+            <div class="task-tree-col task-tree-col-subject">
+                {toggle_icon}
+                <a href="/app/task/{task.name}">{task.subject}</a>
+            </div>
+            <div class="task-tree-col task-tree-col-status">{status}</div>
+            <div class="task-tree-col task-tree-col-user">{assigned_to}</div>
+            <div class="task-tree-col task-tree-col-date">{start_date}</div>
+            <div class="task-tree-col task-tree-col-date">{end_date}</div>
+            <div class="task-tree-col task-tree-col-time">{expected_time}</div>
+        </div>
+        """
+
+        if has_children:
             html += _build_task_tree_html(task.children)
             
         html += "</li>"
