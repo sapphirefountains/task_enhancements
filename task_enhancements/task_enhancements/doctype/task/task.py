@@ -62,7 +62,7 @@ def get_child_tasks_html(task_name):
         
         logger.debug(f"Constructed a tree with {len(tree)} top-level children.")
 
-        tree_html = _build_task_tree_html(tree)
+        tree_html = _build_task_tree_html(tree, level=0)
         if not tree_html:
             return ""
 
@@ -86,7 +86,7 @@ def get_child_tasks_html(task_name):
             .task-tree-col-date { flex-grow: 1; }
             .task-tree-col-time { flex-grow: 0.7; }
             .task-tree-container ul { list-style-type: none; padding-left: 0; margin: 0; }
-            .task-tree-container li > ul { padding-left: 30px; }
+            .task-tree-container li > ul { padding-left: 0; }
             .task-tree-row a { font-weight: 500; }
             .task-tree-row i { margin-right: 5px; width: 14px; text-align: center; }
         </style>
@@ -128,7 +128,7 @@ def _get_all_descendants(doctype, parent):
     return descendants
 
 
-def _build_task_tree_html(tasks):
+def _build_task_tree_html(tasks, level=0):
     if not tasks:
         return ""
 
@@ -148,9 +148,12 @@ def _build_task_tree_html(tasks):
 
         toggle_icon = '<i class="fa fa-minus-square toggle-child-tasks" style="cursor: pointer;"></i> ' if has_children else '<i class="fa fa-square-o"></i> '
 
+        # Calculate indentation for the subject
+        indentation_style = f"padding-left: {level * 15}px;"
+
         html += f"""
         <div class="task-tree-row">
-            <div class="task-tree-col task-tree-col-subject">
+            <div class="task-tree-col task-tree-col-subject" style="{indentation_style}">
                 {toggle_icon}
                 <a href="/app/task/{task.name}">{task.subject}</a>
             </div>
@@ -163,7 +166,7 @@ def _build_task_tree_html(tasks):
         """
 
         if has_children:
-            html += _build_task_tree_html(task.children)
+            html += _build_task_tree_html(task.children, level + 1)
             
         html += "</li>"
     html += "</ul>"
