@@ -16,16 +16,17 @@ class Task(NestedSet):
 
 @frappe.whitelist()
 def get_child_tasks_html(task_name):
-    # --- Start of Logging ---
-    frappe.log_error(f"Executing get_child_tasks_html for task: {task_name}", "Task Enhancements Debug")
-    
+    # Use a dedicated logger for debugging
+    logger = frappe.logger("task_enhancements")
+    logger.debug(f"Executing get_child_tasks_html for task: {task_name}")
+
     try:
         task = frappe.get_doc("Task", task_name)
         descendants = _get_all_descendants("Task", task.name)
         
-        frappe.log_error(f"Found {len(descendants)} descendants.", "Task Enhancements Debug")
+        logger.debug(f"Found {len(descendants)} descendants.")
         if not descendants:
-            frappe.log_error("No descendants found. Returning empty string.", "Task Enhancements Debug")
+            logger.debug("No descendants found. Returning empty string.")
             return ""
 
         # A dictionary to hold tasks by their name for easy lookup
@@ -44,17 +45,16 @@ def get_child_tasks_html(task_name):
             elif d.parent_task in task_map:
                 task_map[d.parent_task].children.append(d)
         
-        frappe.log_error(f"Constructed a tree with {len(tree)} top-level children.", "Task Enhancements Debug")
+        logger.debug(f"Constructed a tree with {len(tree)} top-level children.")
 
         html_output = _build_task_tree_html(tree)
-        frappe.log_error(f"Generated HTML (first 200 chars): {html_output[:200]}", "Task Enhancements Debug")
+        logger.debug(f"Generated HTML (first 200 chars): {html_output[:200]}")
         
         return html_output
 
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), "Task Enhancements Error")
         return f"<div>An error occurred: {e}</div>"
-    # --- End of Logging ---
 
 
 def _get_all_descendants(doctype, parent):
