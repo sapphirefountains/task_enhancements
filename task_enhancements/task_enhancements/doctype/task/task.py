@@ -153,9 +153,11 @@ def _build_task_tree_html(tasks, level=0):
 
         html += f"""
         <div class="task-tree-row">
-            <div class="task-tree-col task-tree-col-subject" style="{indentation_style}">
-                {toggle_icon}
-                <a href="/app/task/{task.name}">{task.subject}</a>
+            <div class="task-tree-col task-tree-col-subject">
+                <div style="{indentation_style}">
+                    {toggle_icon}
+                    <a href="/app/task/{task.name}">{task.subject}</a>
+                </div>
             </div>
             <div class="task-tree-col task-tree-col-status">{status}</div>
             <div class="task-tree-col task-tree-col-user">{assigned_to}</div>
