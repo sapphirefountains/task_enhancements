@@ -96,7 +96,7 @@ def get_child_tasks_html(task_name):
 def _get_all_descendants(doctype, parent):
     descendants = []
     fields = [
-        "name", "subject", "parent_task", "status", "assign_to",
+        "name", "subject", "parent_task", "status", "allocated_to",
         "exp_start_date", "exp_end_date", "expected_time"
     ]
     children = frappe.get_all(doctype, filters={'parent_task': parent}, fields=fields)
