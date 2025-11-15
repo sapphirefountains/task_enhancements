@@ -29,6 +29,23 @@ def get_child_tasks_html(task_name):
             logger.debug("No descendants found. Returning empty string.")
             return ""
 
+        # Get all task names for the assignment query
+        task_names = [d.name for d in descendants]
+
+        # Fetch all assignments for the descendant tasks in a single query
+        assignments = frappe.get_all(
+            "ToDo",
+            filters={"reference_name": ("in", task_names), "reference_type": "Task"},
+            fields=["reference_name", "allocated_to"]
+        )
+
+        # Create a dictionary mapping task names to their assigned user
+        assignment_map = {a.reference_name: a.allocated_to for a in assignments}
+
+        # Add the 'allocated_to' field to each descendant task
+        for d in descendants:
+            d.allocated_to = assignment_map.get(d.name)
+
         # A dictionary to hold tasks by their name for easy lookup
         task_map = {d.name: d for d in descendants}
         # Initialize a children list for each task
@@ -96,7 +113,7 @@ def get_child_tasks_html(task_name):
 def _get_all_descendants(doctype, parent):
     descendants = []
     fields = [
-        "name", "subject", "parent_task", "status", "assign_to",
+        "name", "subject", "parent_task", "status",
         "exp_start_date", "exp_end_date", "expected_time"
     ]
     children = frappe.get_all(doctype, filters={'parent_task': parent}, fields=fields)
