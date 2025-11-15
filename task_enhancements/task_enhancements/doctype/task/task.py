@@ -21,8 +21,7 @@ def get_child_tasks_html(task_name):
     
     try:
         task = frappe.get_doc("Task", task_name)
-        # Using get_descendants() is the correct approach for a NestedSet model
-        descendants = task.get_descendants()
+        descendants = _get_all_descendants("Task", task.name)
         
         frappe.log_error(f"Found {len(descendants)} descendants.", "Task Enhancements Debug")
         if not descendants:
@@ -56,6 +55,15 @@ def get_child_tasks_html(task_name):
         frappe.log_error(frappe.get_traceback(), "Task Enhancements Error")
         return f"<div>An error occurred: {e}</div>"
     # --- End of Logging ---
+
+
+def _get_all_descendants(doctype, parent):
+    descendants = []
+    children = frappe.get_all(doctype, filters={'parent_task': parent}, fields=['name'])
+    for child in children:
+        descendants.append(frappe.get_doc(doctype, child.name))
+        descendants.extend(_get_all_descendants(doctype, child.name))
+    return descendants
 
 
 def _build_task_tree_html(tasks):
