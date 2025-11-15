@@ -9,7 +9,7 @@ frappe.ui.form.on("Task", {
         if (frm.doc.is_group && !frm.is_new()) {
             console.log("Task Enhancements: Conditions met, calling backend method.");
             frappe.call({
-                method: "task_enhancements.task.task.get_child_tasks_html",
+                method: "task_enhancements.task_enhancements.doctype.task.task.get_child_tasks_html",
                 args: {
                     task_name: frm.doc.name
                 },
