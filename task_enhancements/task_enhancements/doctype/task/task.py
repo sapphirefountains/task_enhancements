@@ -1,9 +1,9 @@
 # File: task_enhancements/task_enhancements/task/task.py
 
 import frappe
-from frappe.utils.nestedset import NestedSet
+from erpnext.projects.doctype.task.task import Task as BaseTask
 
-class Task(NestedSet):
+class Task(BaseTask):
     def before_save(self):
         if self.parent_task:
             if not frappe.db.get_value("Task", self.parent_task, "is_group"):
